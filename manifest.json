@@ -1,0 +1,44 @@
+{
+  "manifest_version": 2,
+  "name": "Arxiv Vanity Linker",
+  "description": "Enhances ArXiv Vanity rendered documents with metadata provided by Semantic Scholar.",
+  "version": "0.1",
+  "permissions": [
+    "tabs",
+    "webNavigation",
+    "https://www.arxiv-vanity.com/papers/*",
+    "https://www.semanticscholar.org/*"
+  ],
+  "background": {
+    "scripts": [
+      "worker.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.arxiv-vanity.com/papers/*"
+      ],
+      "js": [
+        "find-citations.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://www.semanticscholar.org/paper/*"
+      ],
+      "js": [
+        "add-arxiv-vanity-link.js"
+      ],
+      "css": [
+        "add-arxiv-vanity-link.css"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "logo.16x16.png",
+    "32": "logo.32x32.png",
+    "48": "logo.48x48.png",
+    "128": "logo.128x128.png"
+  }
+}
