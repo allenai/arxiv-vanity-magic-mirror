@@ -1,6 +1,14 @@
 'use strict';
 
 /**
+ * This script runs in the background, and is used to:
+ *   - Detect that the user is on an S2 PDP (or not) and toggle the display of the ArXiv Vanity
+ *     link.
+ *   - Fetch S2 metadata for an ArXiv aper and return it to the content script so that the ArXiv
+ *     document can be enhanced.
+ */
+
+/**
  * Fetch paper information for the provided ArXiv ID, using the public Semantic Scholar API.
  * @param  {string} arxivId
  * @return {Promise[object]] A promise for the paper's metadata.

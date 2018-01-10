@@ -1,6 +1,14 @@
 'use strict';
 
 /**
+ * This script runs on a rendered ArXiv Vanity document and:
+ *   - Adds a link to the S2 PDP.
+ *   - Links S2 reference contexts to the S2 PDP.
+ *   - Links references to the S2 PDP.
+ *   - Makes the bib entries clickable.
+ */
+
+/**
  * Parse the ArXiv ID from the URL, which will look something like:
  * https://www.arxiv-vanity.com/papers/1211.1036/
  *
