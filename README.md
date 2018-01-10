@@ -7,9 +7,9 @@ Semantic Scholar.
 
 1. Clone the repository:
 
-  ```
-  git clone git@github.com:allenai/arxiv-vanity-magic-mirror
-  ```
+    ```
+    git clone git@github.com:allenai/arxiv-vanity-magic-mirror
+    ```
 
 2. Navigate to `chrome://extensions` in Google Chrome.
 
