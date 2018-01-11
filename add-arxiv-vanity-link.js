@@ -14,8 +14,30 @@ let arxivVanityLink;
  * @return {undefined}
  */
 function removeArxivVanityLink() {
-  if (arxivVanityLink) {
+  if (arxivVanityLink && arxivVanityLink.parentNode) {
     arxivVanityLink.parentNode.removeChild(arxivVanityLink);
+  }
+}
+
+
+/**
+ * Calls the provided function when an element with the given selector is present in the dom.
+ * @param  {string}   selector
+ * @param  {Function} fn
+ * @return {undefined}
+ */
+function whenDOMNodeIsPresent(selector, fn) {
+  const isPresent = () => document.querySelectorAll(selector).length > 0;
+  if(!isPresent()) {
+    const callFnIfPresent = () => {
+      if (isPresent()) {
+        clearInterval(retryIntrvl);
+        fn();
+      }
+    };
+    const retryIntrvl = setInterval(callFnIfPresent, 100);
+  } else {
+    fn();
   }
 }
 
@@ -24,36 +46,39 @@ function removeArxivVanityLink() {
  * @return {undefined}
  */
 function addArxivVanityLink() {
-  // Iterate over all of the paper links, looking for one that links to ArXiv. If we find one it's
-  // an ArXiv paper and we can inject a link to ArXiv vanity.
-  document.querySelectorAll('.paper-link').forEach(paperLink => {
-    const href = paperLink.getAttribute('href');
-    if (href.startsWith('https://arxiv.org/pdf/')) {
-      // Extract the ArXiv id from the url, which looks something like
-      // https://arxiv.org/pdf/cs/0101027.123.pdf
-      const arxivId = href.split('/').pop().split('.pdf').shift();
+  // We have to wait for the page to load
+  whenDOMNodeIsPresent('[data-selenium-selector="paper-detail-title"]', () => {
+    // Iterate over all of the paper links, looking for one that links to ArXiv. If we find one it's
+    // an ArXiv paper and we can inject a link to ArXiv vanity.
+    document.querySelectorAll('.paper-link').forEach(paperLink => {
+      const href = paperLink.getAttribute('href');
+      if (href.startsWith('https://arxiv.org/pdf/')) {
+        // Extract the ArXiv id from the url, which looks something like
+        // https://arxiv.org/pdf/cs/0101027.123.pdf
+        const arxivId = href.split('/').pop().split('.pdf').shift();
 
-      //
-      // TODO: We have ArXiv links IDs that are only numeric,
-      // i.e. https://arxiv.org/pdf/cs/0608027.pdf
-      // These ids, however, deterministically don't work in ArXiv Vanity.
-      //
-      // I'll touch base with Ben to figure out what's going on here -- it could be something
-      // wrong with our data, or something wrong on the ArXiv Vanity side.
-      //
-      if (arxivId && arxivId.indexOf('.') !== -1) {
-        // Create  a link to ArXiv Vanity and inject it into the window. It'll be absolutely
-        // positioned in the bottom right corner of the screen.
-        const linkElement = document.createElement('a');
+        //
+        // TODO: We have ArXiv links IDs that are only numeric,
+        // i.e. https://arxiv.org/pdf/cs/0608027.pdf
+        // These ids, however, deterministically don't work in ArXiv Vanity.
+        //
+        // I'll touch base with Ben to figure out what's going on here -- it could be something
+        // wrong with our data, or something wrong on the ArXiv Vanity side.
+        //
+        if (arxivId && arxivId.indexOf('.') !== -1) {
+          // Create  a link to ArXiv Vanity and inject it into the window. It'll be absolutely
+          // positioned in the bottom right corner of the screen.
+          const linkElement = document.createElement('a');
 
-        linkElement.setAttribute('id', 's2-arxiv-vanity-link');
-        linkElement.setAttribute('href', `https://www.arxiv-vanity.org/papers/${arxivId}/`);
-        linkElement.setAttribute('target', '_blank');
-        linkElement.appendChild(document.createTextNode('View on Arxiv Vanity'));
+          linkElement.setAttribute('id', 's2-arxiv-vanity-link');
+          linkElement.setAttribute('href', `https://www.arxiv-vanity.org/papers/${arxivId}/`);
+          linkElement.setAttribute('target', '_blank');
+          linkElement.appendChild(document.createTextNode('View on Arxiv Vanity'));
 
-        arxivVanityLink = document.body.appendChild(linkElement);
+          arxivVanityLink = document.body.appendChild(linkElement);
+        }
       }
-    }
+    })
   });
 }
 
