@@ -132,6 +132,7 @@ function addContentToDocument(arxivId, references, authors, s2Id) {
   // Add a link to the Semantic Scholar PDP
   const pdpLink = document.createElement('a');
   pdpLink.setAttribute('href', `https://www.semanticscholar.org/paper/${s2Id}`);
+  pdpLink.setAttribute('target', '_blank');
   pdpLink.appendChild(document.createTextNode('Semantic Scholar'));
 
   const pdpLinkContainer = document.createElement('div');
