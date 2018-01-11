@@ -31,6 +31,17 @@ function normalize(text) {
 }
 
 /**
+ * Replace bibligographic references (i.e. "[14]") with an expression that matches a <cite> tag,
+ * since we match against the innerHTML.
+ *
+ * @param  {string} text
+ * @return {string}
+ */
+function replaceBibReferencesWithTags(text) {
+  return text.replace(/\[\d+\]/g, '<cite.+?</cite>');
+}
+
+/**
  * Enhance the ArXiv Vanity document with additional content based on the S2 metadata.
  *
  * @param  {string}    arxivId
@@ -52,7 +63,7 @@ function addContentToDocument(arxivId, references, authors, s2Id) {
     bibEntries.forEach(entry => {
       if (normalize(entry.textContent).indexOf(normalize(ref.title.text)) !== -1) {
         entry.innerHTML =
-          `<a href="https://www.semanticscholar.org/paper/${ref.slug}/${ref.id}">`
+          `<a href="https://www.semanticscholar.org/paper/${ref.slug}/${ref.id}" target="_blank">`
           + entry.innerHTML
           + '</a>';
       };
@@ -63,13 +74,14 @@ function addContentToDocument(arxivId, references, authors, s2Id) {
     // TODO: This doesn't work terribly well, likely because the text we extract doesn't always
     // align with the text as rendered via the HTML. We can likely come up with a far more
     // sophisticated way of doing this.
-    ref.citationContexts.forEach(({ text }) => {
+    ref.citationContexts.forEach(ctx => {
+      const { text } = ctx;
       paragraphs.forEach(p => {
         let paragraphText = p.innerHTML;
         const matches = normalize(paragraphText).match(
           new RegExp(
             // TODO: There's probably more to escape here
-            normalize(text).replace(/[()!+\[\]?]/g, (match) => `\${match}`),
+            replaceBibReferencesWithTags(normalize(text).replace(/[()!+*?.]/g, (match) => '\\' + match)),
             'g'
           )
         );
@@ -81,7 +93,7 @@ function addContentToDocument(arxivId, references, authors, s2Id) {
               const originalText = paragraphText.substr(start, start + match.length);
               p.innerHTML =
                 paragraphText.substr(0, start)
-                + `<a href="https://www.semanticscholar.org/paper/${ref.slug}/${ref.id}">${originalText}</a>`
+                + `<a href="https://www.semanticscholar.org/paper/${ref.slug}/${ref.id}" target="_blank">${originalText}</a>`
                 + after
               paragraphText = after;
             }
@@ -111,7 +123,7 @@ function addContentToDocument(arxivId, references, authors, s2Id) {
     authors.forEach(author => {
       authorsListWithLinks = authorsListWithLinks.replace(
         author.name,
-        `<a href="${author.url}">${author.name}</a>`
+        `<a href="${author.url}" target="_blank">${author.name}</a>`
       );
     });
     authorsList.innerHTML = authorsListWithLinks;
